@@ -1,0 +1,12 @@
+{
+  "name": "studious-aws-cloud-train",
+  "version": "1.0.0",
+  "description": "Node JS cloud training",
+  "main": "index.js",
+  "scripts": {
+    "deploy:product-service": "cd product-service && sls deploy && cd ..",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
