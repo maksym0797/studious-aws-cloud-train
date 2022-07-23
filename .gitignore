@@ -1,1 +1,2 @@
-*node_modules/*
+product-service/node_modules/
+product-service/.serverless/
