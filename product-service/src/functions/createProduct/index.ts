@@ -5,10 +5,9 @@ export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   events: [
     {
-      http: {
+      httpApi: {
         method: "post",
-        path: "products",
-        cors: true,
+        path: "/products",
         request: {
           schemas: {
             "application/json": schema,

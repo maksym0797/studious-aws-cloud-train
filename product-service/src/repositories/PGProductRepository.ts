@@ -13,7 +13,7 @@ export default class PGProductRepository implements IProductRepository {
       const { rows } = await this.client.query(
         `INSERT INTO products (${product
           .getInsertFields()
-          .join(",")}) VALUES ($1,$2,$3)`,
+          .join(",")}) VALUES ($1,$2,$3) RETURNING id`,
         product.toValuesArray()
       );
       if (rows.length <= 0) {
@@ -28,6 +28,7 @@ export default class PGProductRepository implements IProductRepository {
       return product;
     } catch (e) {
       await this.client.query("ROLLBACK");
+      console.log(e);
     }
     return null;
   }

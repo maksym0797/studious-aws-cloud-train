@@ -6,20 +6,21 @@ import {
   ValidatedEventAPIGatewayProxyEvent,
 } from "@libs/apiGateway";
 import { middyfy } from "@libs/lambda";
-import { Pool, PoolClient } from "pg";
+import { Client } from "pg";
 
 import schema from "./schema";
 import ProductService from "@service/ProductService";
 import PGProductRepository from "@repositories/PGProductRepository";
 import Product from "@entities/Product";
-
+const FUNCTION_NAME = "CREATE_PRODUCT";
 const createProduct: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
   event
 ) => {
+  console.log(FUNCTION_NAME, "params=", JSON.stringify(event.body));
   const { title, description, price, count } = event.body;
-  const pool = new Pool();
+  const client = new Client();
   try {
-    const client: PoolClient = await pool.connect();
+    await client.connect();
     try {
       const productService = new ProductService(
         new PGProductRepository(client)
@@ -28,16 +29,18 @@ const createProduct: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
         new Product("", title, description, price, count)
       );
       if (!product) {
+        client.end();
         return formatErrorJSONResponse(400, `Incorrect product data`);
       }
-      client.release();
+      client.end();
       return formatJSONResponse(product.toJSON());
     } catch (error) {
-      console.log("createProduct", JSON.stringify(error));
-      client.release();
+      console.log(FUNCTION_NAME, error);
+      client.end();
       throw error;
     }
   } catch (error) {
+    console.log(FUNCTION_NAME, error);
     return formatErrorJSONResponse(500, error.message);
   }
 };
