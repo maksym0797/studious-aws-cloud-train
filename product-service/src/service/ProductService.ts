@@ -14,4 +14,8 @@ export default class ProductService {
   public getProductById(id: string): Promise<Product | null> {
     return this.productRepository.findById(id);
   }
+
+  public createProduct(product: Product): Promise<Product | null> {
+    return this.productRepository.createProduct(product);
+  }
 }

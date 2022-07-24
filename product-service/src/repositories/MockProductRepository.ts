@@ -11,6 +11,9 @@ export default class MockProductRepository implements IProductRepository {
       (item) => new Product(item.id, item.title, item.description, item.price)
     );
   }
+  async createProduct(product: Product): Promise<Product> {
+    return product;
+  }
 
   public findAll(): Promise<Product[]> {
     return new Promise((resolve, reject) => {
