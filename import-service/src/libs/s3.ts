@@ -1,4 +1,4 @@
-import { S3 } from "aws-sdk";
+import { KMS, S3 } from "aws-sdk";
 
 const BUCKET = "import-bucket-task-5";
 const AWS = require("aws-sdk");
@@ -33,7 +33,26 @@ export const uploadToS3 = async () => {
   for (const catalog of catalogs.Contents) {
     const results = await readFileAsync(catalog.Key);
     console.log(results);
+    moveParsedObject(catalog.Key, JSON.stringify(results));
   }
+};
+
+const moveParsedObject = async (key: string, content: string) => {
+  await s3
+    .putObject({
+      Bucket: BUCKET,
+      Key: key.replace("uploaded", "parsed").replace("csv", "json"),
+      Body: content,
+      ContentType: "text/json",
+    })
+    .promise();
+
+  await s3
+    .deleteObject({
+      Bucket: BUCKET,
+      Key: key,
+    })
+    .promise();
 };
 
 const readFileAsync = (
