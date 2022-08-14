@@ -27,12 +27,12 @@ const serverlessConfiguration: AWS = {
       {
         Effect: "Allow",
         Action: "s3:ListBucket",
-        Resource: ["arn:aws:s3:import-bucket-task-5"],
+        Resource: "arn:aws:s3:::import-bucket-task-5",
       },
       {
         Effect: "Allow",
-        Action: ["s3:*"],
-        Resource: ["arn:aws:s3:import-bucket-task-5/*"],
+        Action: "s3:*",
+        Resource: "arn:aws:s3:::import-bucket-task-5/*",
       },
     ],
   },
