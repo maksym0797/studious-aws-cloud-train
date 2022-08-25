@@ -4,7 +4,13 @@ export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   events: [
     {
-      httpApi: "GET /import/{name}",
+      httpApi: {
+        method: "get",
+        path: "/import/{name}",
+        authorizer: {
+          name: "customAuthorizer",
+        },
+      },
     },
   ],
 };
