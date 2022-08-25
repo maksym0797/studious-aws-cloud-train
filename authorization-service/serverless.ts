@@ -1,12 +1,12 @@
 import type { AWS } from "@serverless/typescript";
 
-import importProductsFile from "@functions/importProductsFile";
-import importFileParser from "@functions/importFileParser";
+import basicAuthorizer from "@functions/basicAuthorizer";
 
 const serverlessConfiguration: AWS = {
-  service: "import-service",
+  service: "authorization-service",
   frameworkVersion: "3",
-  plugins: ["serverless-esbuild"],
+  plugins: ["serverless-esbuild", "serverless-dotenv-plugin"],
+  useDotenv: true,
   provider: {
     name: "aws",
     runtime: "nodejs14.x",
@@ -20,30 +20,19 @@ const serverlessConfiguration: AWS = {
     },
     region: "eu-central-1",
     stage: "dev",
-    httpApi: {
-      cors: true,
-      authorizers: {
-        customAuthorizer: {
-          type: "request",
-          functionArn: "${self:custom.authorizerArn}",
+  },
+  // import the function via paths
+  functions: { basicAuthorizer },
+  resources: {
+    Outputs: {
+      StackAuth: {
+        Value: { "Fn::GetAtt": ["BasicAuthorizerLambdaFunction", "Arn"] },
+        Export: {
+          Name: "basic-authorizer-arn",
         },
       },
     },
-    iamRoleStatements: [
-      {
-        Effect: "Allow",
-        Action: "s3:ListBucket",
-        Resource: "arn:aws:s3:::import-bucket-task-5",
-      },
-      {
-        Effect: "Allow",
-        Action: "s3:*",
-        Resource: "arn:aws:s3:::import-bucket-task-5/*",
-      },
-    ],
   },
-  // import the function via paths
-  functions: { importProductsFile, importFileParser },
   package: { individually: true },
   custom: {
     esbuild: {
@@ -55,9 +44,6 @@ const serverlessConfiguration: AWS = {
       define: { "require.resolve": undefined },
       platform: "node",
       concurrency: 10,
-    },
-    authorizerArn: {
-      "Fn::ImportValue": "basic-authorizer-arn",
     },
   },
 };
