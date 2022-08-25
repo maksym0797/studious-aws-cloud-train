@@ -23,18 +23,21 @@ export const getSignedUrlByName = async (name: string): Promise<string> => {
   });
 };
 
-export const uploadToS3 = async () => {
+export const parseUploaded = async (): Promise<Record<string, any>[]> => {
   const params = {
     Bucket: BUCKET,
     Prefix: "uploaded/",
     Delimiter: "/",
   };
   const catalogs = await s3.listObjectsV2(params).promise();
+  let parsedResults = [];
   for (const catalog of catalogs.Contents) {
     const results = await readFileAsync(catalog.Key);
-    console.log(results);
+    parsedResults = parsedResults.concat(results);
     moveParsedObject(catalog.Key, JSON.stringify(results));
   }
+
+  return parsedResults;
 };
 
 const moveParsedObject = async (key: string, content: string) => {

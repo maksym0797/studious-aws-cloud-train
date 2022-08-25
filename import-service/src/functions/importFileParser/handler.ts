@@ -1,22 +1,16 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { formatStringResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
-import { uploadToS3 } from "@libs/s3";
+import { parseUploaded } from "@libs/s3";
+import { sendMessage } from "@libs/sqs";
+import { S3Event, S3Handler } from "aws-lambda";
 
-import schema from "./schema";
-
-const importFileParser: ValidatedEventAPIGatewayProxyEvent<
-  typeof schema
-> = async (event) => {
+const importFileParser: S3Handler = async (event: S3Event) => {
   try {
-    await uploadToS3();
-    return formatStringResponse("");
+    const data = await parseUploaded();
+    for (const prasedProduct of data) {
+      sendMessage("catalogItemsQueue", JSON.stringify(prasedProduct));
+    }
   } catch (e) {
     console.log(e);
-    return {
-      statusCode: 400,
-      body: "Sorry, something went wrong",
-    };
   }
 };
 
